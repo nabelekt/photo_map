@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Display a map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoibmFiZWxla3QiLCJhIjoiY2p4ZXVubnQwMGVmcTN6cGU0c3JpZmM2diJ9.peecDCcSljWhChxCknv7AQ';
+
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+    // style: 'mapbox://styles/mapbox/satellite-v9', // stylesheet location
+    center: [-99.66, 38.46], // starting position [lng, lat]
+    zoom: 5.5 // starting zoom
+});
+
+map.on('load', function() {
+    map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Map_pin_icon.svg/176px-Map_pin_icon.svg.png', function(error, image) {
+        if (error) throw error;
+        map.addImage('pin', image);
+        map.addLayer({
+            "id": "points",
+            "type": "symbol",
+            "source": {
+                "type": "geojson",
+                "data": {
+                    "type": "FeatureCollection",
+                    "features": [{
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [-105, 40]
+                        }
+                    }]
+                }
+            },
+            "layout": {
+                "icon-image": "pin",
+                "icon-size": 0.12
+            }
+        });
+    });
+});
+
+</script>
+
+</body>
+</html>
