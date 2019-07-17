@@ -6,6 +6,7 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='papaparse.min.js'></script>
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -32,35 +33,38 @@
     <div id='map'></div>
 
     <script>
+
         mapboxgl.accessToken = 'pk.eyJ1IjoibmFiZWxla3QiLCJhIjoiY2p4ZXVubnQwMGVmcTN6cGU0c3JpZmM2diJ9.peecDCcSljWhChxCknv7AQ';
-        
-        var coordinates = [
-            [6.73579, 78.72300],
-            [2.70886, 11.51694],
-            [34.05482, -57.09742],
-            [-39.05019, 89.79126],
-            [17.44893, 35.57014],
-            [23.60105, 168.12674],
-            [-4.87631, 72.99334],
-            [39.7392, -104.9903],
-            [39.79905,-105.78118],
-            [39.80266,-105.78692],
-            [39.79758,-105.78061],
-            [39.80314,-105.78978],
-            [39.80313,-105.78999],
-            [39.80103,-105.78272],
-            [39.80096,-105.78259],
-            [39.80187,-105.78407],
-            [39.80283,-105.78593],
-            [39.79937,-105.78134],
-            [39.80023,-105.78164],
-            [39.80272,-105.78765],
-            [39.80263,-105.78673],
-            [39.80264,-105.78676],
-            [39.80125,-105.78326],
-            [39.7976,-105.78028],
-            [39.80316,-105.7905],
-        ]
+
+        load_coordinates()
+
+        // var coordinates = [
+        //     [6.73579, 78.72300],
+        //     [2.70886, 11.51694],
+        //     [34.05482, -57.09742],
+        //     [-39.05019, 89.79126],
+        //     [17.44893, 35.57014],
+        //     [23.60105, 168.12674],
+        //     [-4.87631, 72.99334],
+        //     [39.7392, -104.9903],
+        //     [39.79905,-105.78118],
+        //     [39.80266,-105.78692],
+        //     [39.79758,-105.78061],
+        //     [39.80314,-105.78978],
+        //     [39.80313,-105.78999],
+        //     [39.80103,-105.78272],
+        //     [39.80096,-105.78259],
+        //     [39.80187,-105.78407],
+        //     [39.80283,-105.78593],
+        //     [39.79937,-105.78134],
+        //     [39.80023,-105.78164],
+        //     [39.80272,-105.78765],
+        //     [39.80263,-105.78673],
+        //     [39.80264,-105.78676],
+        //     [39.80125,-105.78326],
+        //     [39.7976,-105.78028],
+        //     [39.80316,-105.7905],
+        // ]
         var num_coordinates = Object.keys(coordinates).length
 
         var geojson = {
@@ -90,40 +94,52 @@
             zoom: 5.5 // starting zoom
         });
 
-        // // add markers to map
-        // geojson.features.forEach(function(marker) {
-        //     // create a DOM element for the marker
-        //     var el = document.createElement('div');
-        //     el.className = 'marker';
-
-        //     // el.addEventListener('click', function() {
-        //     //     window.alert(marker.properties.message);
-        //     // });
-
-        //     // add marker to map
-        //     new mapboxgl.Marker(el)
-        //     .setLngLat(marker.geometry.coordinates)
-        //     .addTo(map);
-        // });
-
         map.on('load', function() {
-            map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Map_pin_icon.svg/176px-Map_pin_icon.svg.png', function(error, image) {
+            map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Google_Maps_pin.svg/137px-Google_Maps_pin.svg.png', function(error, image) {
+
                 if (error) throw error;
                 map.addImage('pin', image);
+                map.addSource("photo_locations", {
+                    type: "geojson",
+                    data: geojson,
+                    cluster: false,
+                    clusterMaxZoom: 1, // Max zoom to cluster points on
+                    clusterRadius: 1 // Radius of each cluster when clustering points (defaults to 50)
+                });
                 map.addLayer({
                     "id": "points",
                     "type": "symbol",
-                    "source": {
-                        "type": "geojson",
-                        "data": geojson
-                    },
+                    "source": "photo_locations",
                     "layout": {
                         "icon-image": "pin",
-                        "icon-size": 0.12
+                        "icon-size": .08,
+                        "icon-allow-overlap": true
                     }
                 });
             });
         });
+
+        function load_coordinates() {
+            var coord_str = readTextFile('data/photo_coordinates.csv')
+            console.log(coord_str)
+            // Papa.parse(file, config)
+        }
+
+        function readTextFile(file_path)
+        {
+            var rawFile = new XMLHttpRequest();
+            rawFile.open("GET", file_path, false);
+            rawFile.onreadystatechange = function () {
+                if(rawFile.readyState === 4) {
+                    if(rawFile.status === 200 || rawFile.status == 0) {
+                        return rawFile.responseText;
+                    }
+                }
+            }
+            rawFile.send(null);
+            return ""
+
+        }
 
     </script>
 
